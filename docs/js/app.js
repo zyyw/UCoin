@@ -5,7 +5,7 @@ App = {
   loading: false,
   tokenPrice: 1000000000000000,
   tokensSold: 0,
-  tokensAvailable: 750000,
+  tokensAvailable: 75000000,
 
   init: function() {
     console.log("App initialized...")
@@ -26,18 +26,18 @@ App = {
   },
 
   initContracts: function() {
-    $.getJSON("DappTokenSale.json", function(dappTokenSale) {
-      App.contracts.DappTokenSale = TruffleContract(dappTokenSale);
-      App.contracts.DappTokenSale.setProvider(App.web3Provider);
-      App.contracts.DappTokenSale.deployed().then(function(dappTokenSale) {
-        console.log("Dapp Token Sale Address:", dappTokenSale.address);
+    $.getJSON("UCoinTokenSale.json", function(ucoinTokenSale) {
+      App.contracts.UCoinTokenSale = TruffleContract(ucoinTokenSale);
+      App.contracts.UCoinTokenSale.setProvider(App.web3Provider);
+      App.contracts.UCoinTokenSale.deployed().then(function(ucoinTokenSale) {
+        console.log("UCoin Token Sale Address:", ucoinTokenSale.address);
       });
     }).done(function() {
-      $.getJSON("DappToken.json", function(dappToken) {
-        App.contracts.DappToken = TruffleContract(dappToken);
-        App.contracts.DappToken.setProvider(App.web3Provider);
-        App.contracts.DappToken.deployed().then(function(dappToken) {
-          console.log("Dapp Token Address:", dappToken.address);
+      $.getJSON("UCoinToken.json", function(ucoinToken) {
+        App.contracts.UCoinToken = TruffleContract(ucoinToken);
+        App.contracts.UCoinToken.setProvider(App.web3Provider);
+        App.contracts.UCoinToken.deployed().then(function(ucoinToken) {
+          console.log("UCoin Token Address:", ucoinToken.address);
         });
 
         App.listenForEvents();
@@ -48,7 +48,7 @@ App = {
 
   // Listen for events emitted from the contract
   listenForEvents: function() {
-    App.contracts.DappTokenSale.deployed().then(function(instance) {
+    App.contracts.UCoinTokenSale.deployed().then(function(instance) {
       instance.Sell({}, {
         fromBlock: 0,
         toBlock: 'latest',
@@ -80,13 +80,13 @@ App = {
     })
 
     // Load token sale contract
-    App.contracts.DappTokenSale.deployed().then(function(instance) {
-      dappTokenSaleInstance = instance;
-      return dappTokenSaleInstance.tokenPrice();
+    App.contracts.UCoinTokenSale.deployed().then(function(instance) {
+      ucoinTokenSaleInstance = instance;
+      return ucoinTokenSaleInstance.tokenPrice();
     }).then(function(tokenPrice) {
       App.tokenPrice = tokenPrice;
       $('.token-price').html(web3.fromWei(App.tokenPrice, "ether").toNumber());
-      return dappTokenSaleInstance.tokensSold();
+      return ucoinTokenSaleInstance.tokensSold();
     }).then(function(tokensSold) {
       App.tokensSold = tokensSold.toNumber();
       $('.tokens-sold').html(App.tokensSold);
@@ -96,11 +96,11 @@ App = {
       $('#progress').css('width', progressPercent + '%');
 
       // Load token contract
-      App.contracts.DappToken.deployed().then(function(instance) {
-        dappTokenInstance = instance;
-        return dappTokenInstance.balanceOf(App.account);
+      App.contracts.UCoinToken.deployed().then(function(instance) {
+        ucoinTokenInstance = instance;
+        return ucoinTokenInstance.balanceOf(App.account);
       }).then(function(balance) {
-        $('.dapp-balance').html(balance.toNumber());
+        $('.ucoin-balance').html(balance.toNumber());
         App.loading = false;
         loader.hide();
         content.show();
@@ -112,7 +112,7 @@ App = {
     $('#content').hide();
     $('#loader').show();
     var numberOfTokens = $('#numberOfTokens').val();
-    App.contracts.DappTokenSale.deployed().then(function(instance) {
+    App.contracts.UCoinTokenSale.deployed().then(function(instance) {
       return instance.buyTokens(numberOfTokens, {
         from: App.account,
         value: numberOfTokens * App.tokenPrice,
